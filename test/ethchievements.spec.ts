@@ -52,7 +52,7 @@ describe("Ethchievements", () => {
     });
 
     async function subject(): Promise<ContractTransaction> {
-      return await ethchievements.mint(subjectTo, subjectIntegration, subjectTask);
+      return await ethchievements.connect(subjectCaller).mint(subjectTo, subjectIntegration, subjectTask);
     }
 
     it("should increment the currentId", async () => {
