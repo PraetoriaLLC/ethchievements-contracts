@@ -4,6 +4,7 @@ import { Ethchievements, Ethchievements__factory } from "../typechain";
 import chai from "chai";
 import { BigNumber } from "@ethersproject/bignumber";
 import { ContractTransaction } from "@ethersproject/contracts";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 const expect = chai.expect;
 
@@ -42,6 +43,7 @@ describe("Ethchievements", () => {
     let subjectTo: string;
     let subjectIntegration: string;
     let subjectTask: string;
+    let subjectSignature: string;
     let subjectCaller: SignerWithAddress;
 
     beforeEach(async () => {
@@ -49,10 +51,14 @@ describe("Ethchievements", () => {
       subjectIntegration = "aave";
       subjectTask = "deposit";
       subjectCaller = user;
+
+      const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, subjectIntegration, subjectTask]);
+      const messageHashBinary = ethers.utils.arrayify(messageHash);
+      subjectSignature = await deployer.signMessage(messageHashBinary);
     });
 
     async function subject(): Promise<ContractTransaction> {
-      return await ethchievements.connect(subjectCaller).mint(subjectTo, subjectIntegration, subjectTask);
+      return await ethchievements.connect(subjectCaller).mint(subjectTo, subjectIntegration, subjectTask, subjectSignature);
     }
 
     it("should increment the currentId", async () => {
@@ -69,6 +75,40 @@ describe("Ethchievements", () => {
       const tokenURI = await ethchievements.tokenURI(id);
 
       expect(tokenURI).to.eq(`example.com/${subjectIntegration}/${subjectTask}`);
+    });
+
+    context("when signature is not signed by owner", async () => {
+      beforeEach(async () => {
+        const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, subjectIntegration, subjectTask]);
+        const messageHashBinary = ethers.utils.arrayify(messageHash);
+        subjectSignature = await user.signMessage(messageHashBinary);
+      });
+
+      it("should revert", async () => {
+        await expect(subject()).to.be.revertedWith("invalid signature");
+      });
+    });
+
+    context("when signed message has incorrect fields", async () => {
+      beforeEach(async () => {
+        const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, "compound", subjectTask]);
+        const messageHashBinary = ethers.utils.arrayify(messageHash);
+        subjectSignature = await deployer.signMessage(messageHashBinary);
+      });
+
+      it("should revert", async () => {
+        await expect(subject()).to.be.revertedWith("invalid signature");
+      });
+    });
+
+    context("when user replays signed message", async () => {
+      beforeEach(async () => {
+        await subject();
+      });
+
+      it("should revert", async () => {
+        await expect(subject()).to.be.revertedWith("already minted");
+      });
     });
   });
 });
