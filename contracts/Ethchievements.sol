@@ -9,6 +9,7 @@ contract Ethchievements is ERC721URIStorage, Ownable {
 
     string public base;
     uint256 public currentId;
+    mapping(bytes32 => bool) alreadyMinted;
 
     constructor(string memory _base) ERC721("Ethchievements", "EMNT") {
         base = _base;
@@ -25,8 +26,12 @@ contract Ethchievements is ERC721URIStorage, Ownable {
         currentId++;
     }
 
-    function _verify(address _to, string memory _integration, string memory _task, bytes memory _sig) internal view {
+    function _verify(address _to, string memory _integration, string memory _task, bytes memory _sig) internal {
+
         bytes32 messageHash = keccak256(abi.encodePacked(_to, _integration, _task));
+        require(!alreadyMinted[messageHash], "already minted");
+        alreadyMinted[messageHash] = true;
+
         address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(messageHash), _sig);
         require(signer == owner(), "invalid signature");
     }
