@@ -35,7 +35,37 @@ describe("Ethchievements", () => {
     it("should set the correct state variables", async () => {
       const deployedEthchievements = await subject();
 
-      expect(await deployedEthchievements.base()).to.eq(subjectBase);
+      expect(await deployedEthchievements.baseUrl()).to.eq(subjectBase);
+    });
+  });
+
+  describe("#setBaseUrl", async () => {
+    let subjectNewBaseUrl: string;
+    let subjectCaller: SignerWithAddress;
+
+    beforeEach(() => {
+      subjectNewBaseUrl = "website.org";
+      subjectCaller = deployer;
+    });
+
+    async function subject(): Promise<ContractTransaction> {
+      return await ethchievements.connect(subjectCaller).setBaseUrl(subjectNewBaseUrl);
+    }
+
+    it("should change the base url", async () => {
+      await subject();
+
+      expect(await ethchievements.baseUrl()).to
+    });
+
+    context("when caller is not the owner", async () => {
+      beforeEach(() => {
+        subjectCaller = user;
+      });
+
+      it("should revert", async () => {
+        await expect(subject()).to.be.revertedWith("Ownable: caller is not the owner");
+      });
     });
   });
 

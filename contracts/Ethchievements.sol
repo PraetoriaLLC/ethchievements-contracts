@@ -17,17 +17,21 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 contract Ethchievements is ERC721URIStorage, Ownable {
     using Strings for uint256;
 
-    string public base;
+    string public baseUrl;
     uint256 public currentId;
     mapping(bytes32 => bool) alreadyMinted;
 
     /**
      * Sets the state variables
      *
-     * @param _base the base url of the NFT
+     * @param _baseUrl  the base url of the NFT
      */
-    constructor(string memory _base) ERC721("Ethchievements", "EMNT") {
-        base = _base;
+    constructor(string memory _baseUrl) ERC721("Ethchievements", "EMNT") {
+        baseUrl = _baseUrl;
+    }
+
+    function setBaseUrl(string memory _newBaseUrl) external onlyOwner {
+        baseUrl = _newBaseUrl;
     }
 
     /**
@@ -45,7 +49,7 @@ contract Ethchievements is ERC721URIStorage, Ownable {
         _verify(_to, _achievementId, _sig);
 
         _mint(_to, currentId);
-        string memory newTokenURI = string(abi.encodePacked(base, "/", _achievementId.toString(), "/", currentId.toString()));
+        string memory newTokenURI = string(abi.encodePacked(baseUrl, "/", _achievementId.toString(), "/", currentId.toString()));
         _setTokenURI(currentId, newTokenURI);
 
         currentId++;
