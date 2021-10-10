@@ -10,7 +10,9 @@
     "test": "npx hardhat test",
     "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage",
     "deploy:kovan": "npx hardhat --network kovan deploy",
-    "etherscan:kovan": "npx hardhat --network kovan etherscan-verify"
+    "deploy:polygon": "npx hardhat --network polygon deploy",
+    "etherscan:kovan": "npx hardhat --network kovan etherscan-verify",
+    "etherscan:polygon": "npx hardhat --network polygon etherscan-verify"
   },
   "repository": {
     "type": "git",

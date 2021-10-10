@@ -55,7 +55,7 @@ describe("Ethchievements", () => {
     it("should change the base url", async () => {
       await subject();
 
-      expect(await ethchievements.baseUrl()).to
+      expect(await ethchievements.baseUrl()).to.eq(subjectNewBaseUrl)
     });
 
     context("when caller is not the owner", async () => {

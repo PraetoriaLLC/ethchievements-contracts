@@ -9,9 +9,9 @@ import "@nomiclabs/hardhat-etherscan";
 import "solidity-coverage";
 import "hardhat-deploy";
 
-const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
-const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY || ""
+const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -24,8 +24,12 @@ const config: HardhatUserConfig = {
     hardhat: {},
     localhost: {},
     kovan: {
-      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [`0x${KOVAN_PRIVATE_KEY}`],
+      url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`0x${PRIVATE_KEY}`],
+    },
+    polygon: {
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
     coverage: {
       url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
