@@ -30,6 +30,11 @@ contract Ethchievements is ERC721URIStorage, Ownable {
         baseUrl = _baseUrl;
     }
 
+    /**
+     * ONLY OWNER: Updates the base url
+     *
+     * @param _newBaseUrl   new base url
+     */
     function setBaseUrl(string memory _newBaseUrl) external onlyOwner {
         baseUrl = _newBaseUrl;
     }
