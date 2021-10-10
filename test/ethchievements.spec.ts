@@ -41,24 +41,22 @@ describe("Ethchievements", () => {
 
   describe("#mint", async () => {
     let subjectTo: string;
-    let subjectIntegration: string;
-    let subjectTask: string;
+    let subjectAchievementId: number;
     let subjectSignature: string;
     let subjectCaller: SignerWithAddress;
 
     beforeEach(async () => {
       subjectTo = user.address;
-      subjectIntegration = "aave";
-      subjectTask = "deposit";
+      subjectAchievementId = 1;
       subjectCaller = user;
 
-      const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, subjectIntegration, subjectTask]);
+      const messageHash = solidityKeccak256(["address", "uint256"], [subjectTo, subjectAchievementId]);
       const messageHashBinary = ethers.utils.arrayify(messageHash);
       subjectSignature = await deployer.signMessage(messageHashBinary);
     });
 
     async function subject(): Promise<ContractTransaction> {
-      return await ethchievements.connect(subjectCaller).mint(subjectTo, subjectIntegration, subjectTask, subjectSignature);
+      return await ethchievements.connect(subjectCaller).mint(subjectTo, subjectAchievementId, subjectSignature);
     }
 
     it("should increment the currentId", async () => {
@@ -74,12 +72,12 @@ describe("Ethchievements", () => {
       await subject();
       const tokenURI = await ethchievements.tokenURI(id);
 
-      expect(tokenURI).to.eq(`example.com/${subjectIntegration}/${subjectTask}`);
+      expect(tokenURI).to.eq(`example.com/${subjectAchievementId}/${id}`);
     });
 
     context("when signature is not signed by owner", async () => {
       beforeEach(async () => {
-        const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, subjectIntegration, subjectTask]);
+        const messageHash = solidityKeccak256(["address", "uint256"], [subjectTo, subjectAchievementId]);
         const messageHashBinary = ethers.utils.arrayify(messageHash);
         subjectSignature = await user.signMessage(messageHashBinary);
       });
@@ -91,7 +89,7 @@ describe("Ethchievements", () => {
 
     context("when signed message has incorrect fields", async () => {
       beforeEach(async () => {
-        const messageHash = solidityKeccak256(["address", "string", "string"], [subjectTo, "compound", subjectTask]);
+        const messageHash = solidityKeccak256(["address", "uint256"], [subjectTo, 182]);
         const messageHashBinary = ethers.utils.arrayify(messageHash);
         subjectSignature = await deployer.signMessage(messageHashBinary);
       });

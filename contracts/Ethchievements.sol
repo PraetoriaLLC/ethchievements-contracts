@@ -5,6 +5,7 @@ import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { ERC721URIStorage } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title   Ethchievements
@@ -14,6 +15,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
  *          backend will use as a path to store the appropriate NFT image
  */
 contract Ethchievements is ERC721URIStorage, Ownable {
+    using Strings for uint256;
 
     string public base;
     uint256 public currentId;
@@ -34,25 +36,24 @@ contract Ethchievements is ERC721URIStorage, Ownable {
      * RPC call. Replay attacks are prevented by disallowing multiple mints with the same minter, integration, task
      * combination.
      *
-     * @param _to           the recipient of the NFT
-     * @param _integration  the integration name for the Ethchievement
-     * @param _task         the task name for the Ethchievement
-     * @param _sig          the eth signed message by the owner of keccak(_to + _integration + _task)
+     * @param _to               the recipient of the NFT
+     * @param _achievementId    the id of tje achievement
+     * @param _sig              the eth signed message by the owner of keccak(_to + _achievementId)
      */
-    function mint(address _to, string memory _integration, string memory _task, bytes memory _sig) external {
+    function mint(address _to, uint256 _achievementId, bytes memory _sig) external {
 
-        _verify(_to, _integration, _task, _sig);
+        _verify(_to, _achievementId, _sig);
 
         _mint(_to, currentId);
-        string memory newTokenURI = string(abi.encodePacked(base, "/", _integration, "/", _task));
+        string memory newTokenURI = string(abi.encodePacked(base, "/", _achievementId.toString(), "/", currentId.toString()));
         _setTokenURI(currentId, newTokenURI);
 
         currentId++;
     }
 
-    function _verify(address _to, string memory _integration, string memory _task, bytes memory _sig) internal {
+    function _verify(address _to, uint256 _achievementId, bytes memory _sig) internal {
 
-        bytes32 messageHash = keccak256(abi.encodePacked(_to, _integration, _task));
+        bytes32 messageHash = keccak256(abi.encodePacked(_to, _achievementId));
         require(!alreadyMinted[messageHash], "already minted");
         alreadyMinted[messageHash] = true;
 
