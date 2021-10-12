@@ -46,7 +46,7 @@ contract Ethchievements is ERC721URIStorage, Ownable {
      * combination.
      *
      * @param _to               the recipient of the NFT
-     * @param _achievementId    the id of tje achievement
+     * @param _achievementId    the id of the achievement
      * @param _sig              the eth signed message by the owner of keccak(_to + _achievementId)
      */
     function mint(address _to, uint256 _achievementId, bytes memory _sig) external {
